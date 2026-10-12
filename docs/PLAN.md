@@ -9,7 +9,7 @@ Resume point after a context clear: find the first unchecked box and continue fr
 - [x] **Phase 2 — Backend foundation**: Laravel 13 scaffold, strict tooling, Sanctum auth, ownership scope, i18n, migrations, seeders.
 - [x] **Phase 3 — Backend categories and expenses** (TDD, contract-validated).
 - [x] **Phase 4 — Backend stats, performance, caching**.
-- [ ] **Phase 5 — Frontend foundation**: tooling, tokens, i18n, dates facade, typed API client, layouts/nav, auth.
+- [x] **Phase 5 — Frontend foundation**: tooling, tokens, i18n, dates facade, typed API client, layouts/nav, auth.
 - [ ] **Phase 6 — Frontend categories and expenses**.
 - [ ] **Phase 7 — Dashboard and charts**.
 - [ ] **Phase 8 — E2E, coverage ≥90%, Lighthouse, CI files, docs, release `0.1.0`, Engineering Report**.
@@ -33,3 +33,6 @@ Per phase: `feature/<phase-slug>` → TDD (red / green / refactor) → gates gre
 - Known open items: frontend still unscaffolded (phase 5); the GGA hook ignores PHP files.
 - Phase 4 (2026-10-12): stats summary, by-category, timeseries (currency-isolated, gap-filled buckets), owner-scoped versioned cache, strong ETag with 304, per-user rate limit. Gates re-run by the orchestrator: 483 tests pass, coverage 99.5% (PCOV), PHPStan max no errors, Pint passed. Contract gained 429 on stats operations.
 - Documented exception: one `selectRaw` for grouped SUM/COUNT in the stats repository (standard SQL, no dialect functions).
+- Review (2026-10-12): backend read-only review; verified defects fixed on `develop` (spent_on stored as date, previous-period span, amount cap, login throttle keys and IP limit, token expiry and pruning, trusted proxies, Accept-Language vary). Reviewer's health-route drift claim was checked and rejected: the contract matches the code.
+- Phase 5 (2026-10-12): frontend foundation merged to frontend `develop` (14 commits): pnpm tooling, tokens and self-hosted font, dayjs facade, typed i18n with lazy locales, typed API client with problem details, auth stores and guards, responsive shell, Playwright smoke, Docker dev/prod. Gates re-run by the orchestrator: typecheck and lint clean, 147 tests pass, coverage 99.5/98.2/99.2/99.7, Playwright 6/6 passed (per writer).
+- Known limits: TypeScript pinned to 6.0.x (typescript-eslint constraint); token in localStorage (documented trade-off); no Lighthouse run yet.
