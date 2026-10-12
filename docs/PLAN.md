@@ -8,7 +8,7 @@ Resume point after a context clear: find the first unchecked box and continue fr
 - [x] **Phase 1 — Root repo and skeleton**: superproject, submodules, Git Flow scripts, hooks, AGENTS.md, README, `.mcp.json`, OpenAPI contract, Docker/Makefile skeleton.
 - [x] **Phase 2 — Backend foundation**: Laravel 13 scaffold, strict tooling, Sanctum auth, ownership scope, i18n, migrations, seeders.
 - [x] **Phase 3 — Backend categories and expenses** (TDD, contract-validated).
-- [ ] **Phase 4 — Backend stats, performance, caching**.
+- [x] **Phase 4 — Backend stats, performance, caching**.
 - [ ] **Phase 5 — Frontend foundation**: tooling, tokens, i18n, dates facade, typed API client, layouts/nav, auth.
 - [ ] **Phase 6 — Frontend categories and expenses**.
 - [ ] **Phase 7 — Dashboard and charts**.
@@ -31,3 +31,5 @@ Per phase: `feature/<phase-slug>` → TDD (red / green / refactor) → gates gre
 - Note: the superproject pin for backend was committed directly on `develop` (not via a feature branch) because the dirty submodule blocked `feature start`.
 - Phase 3 (2026-10-12): categories (system reference rows shared via explicit `IncludesUnownedRows` scope, custom CRUD, archive/unarchive) and expenses (CRUD, filters, pagination, constant-query listing) merged to backend `develop`. Gates re-run by the orchestrator: 309 tests pass, coverage 100% (PCOV), PHPStan max no errors, Pint passed. Contract gained 403 on archive/unarchive (system categories are read-only).
 - Known open items: frontend still unscaffolded (phase 5); the GGA hook ignores PHP files.
+- Phase 4 (2026-10-12): stats summary, by-category, timeseries (currency-isolated, gap-filled buckets), owner-scoped versioned cache, strong ETag with 304, per-user rate limit. Gates re-run by the orchestrator: 483 tests pass, coverage 99.5% (PCOV), PHPStan max no errors, Pint passed. Contract gained 429 on stats operations.
+- Documented exception: one `selectRaw` for grouped SUM/COUNT in the stats repository (standard SQL, no dialect functions).
