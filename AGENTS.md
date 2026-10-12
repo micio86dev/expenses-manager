@@ -34,7 +34,7 @@ Personal expense tracker with an admin panel. Superproject with two submodules:
 | `make contract` | Copy `contracts/openapi.yaml` into `backend/` and `frontend/` |
 | `make contract-check` | Fail when the contract copies drift |
 | `make check-readme` | Fail when the README names a missing target, flag or env var |
-| `make test-scripts` | Behaviour tests of `start.sh` |
+| `make test-scripts` | Behaviour tests of `start.sh` and `check-readme.sh` |
 | `make review` | Guardian Angel review of the branch (`gga run --pr-mode`) |
 | `make memory-sync` | Export Engram memories to `.engram/` (`engram sync`) |
 | `make release BUMP=patch\|minor\|major` | Run `scripts/release.sh` |
