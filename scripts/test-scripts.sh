@@ -40,6 +40,7 @@ expect "--rebuild disables the build cache" 0 "build --no-cache" -- env NO_COLOR
 expect "--down stops the stack" 0 "docker compose down" -- env NO_COLOR=1 ./start.sh --down --dry-run
 expect "--reset deletes volumes after confirmation" 0 "down --volumes" -- env NO_COLOR=1 ./start.sh --reset --dry-run
 expect "--test runs the backend gate" 0 "vendor/bin/phpstan" -- env NO_COLOR=1 ./start.sh --test --dry-run
+expect "--test sets CI=true for the frontend gates" 0 "-e CI=true web pnpm coverage" -- env NO_COLOR=1 ./start.sh --test --dry-run
 
 # check-readme.sh against throwaway READMEs (tick is a backtick, kept out of single quotes for shellcheck).
 tick=$(printf '\140')
