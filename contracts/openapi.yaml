@@ -1,0 +1,1018 @@
+openapi: 3.1.0
+info:
+  title: Expenses Manager API
+  version: 0.1.0
+  description: >
+    REST API for managing personal expenses.
+    This file is the source of truth for the contract: backend and frontend
+    receive it through `make contract` and CI verifies that the copies match.
+    Amounts are integers in minor currency units. Errors use RFC 9457 Problem Details.
+    Send `Accept-Language` (it or en) to localize error messages and system category names.
+  license:
+    name: Proprietary
+    identifier: LicenseRef-Proprietary
+servers:
+  - url: http://localhost:8000/api/v1
+    description: Local development
+tags:
+  - name: Auth
+    description: Accounts and sessions
+  - name: Expenses
+    description: Recorded expenses
+  - name: Categories
+    description: Expense categories
+  - name: Stats
+    description: Aggregated spending
+  - name: Health
+    description: Liveness and readiness probes
+security:
+  - bearerAuth: []
+paths:
+  /auth/register:
+    post:
+      tags: [Auth]
+      operationId: register
+      summary: Create an account
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterInput'
+      responses:
+        '201':
+          description: Account created and signed in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResource'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /auth/login:
+    post:
+      tags: [Auth]
+      operationId: login
+      summary: Sign in and receive a personal access token
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginInput'
+      responses:
+        '200':
+          description: Signed in
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResource'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /auth/logout:
+    post:
+      tags: [Auth]
+      operationId: logout
+      summary: Revoke the current access token
+      responses:
+        '204':
+          description: Token revoked
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+  /auth/me:
+    get:
+      tags: [Auth]
+      operationId: getMe
+      summary: Get the signed-in user
+      responses:
+        '200':
+          description: Signed-in user
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResource'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    patch:
+      tags: [Auth]
+      operationId: updateMe
+      summary: Update profile and locale preference
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProfileInput'
+      responses:
+        '200':
+          description: Profile updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResource'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /expenses:
+    get:
+      tags: [Expenses]
+      operationId: listExpenses
+      summary: List expenses
+      description: Sorted by expense date descending, then by creation time descending.
+      parameters:
+        - $ref: '#/components/parameters/CategoryFilter'
+        - $ref: '#/components/parameters/From'
+        - $ref: '#/components/parameters/To'
+        - $ref: '#/components/parameters/Query'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Paginated list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseCollection'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+    post:
+      tags: [Expenses]
+      operationId: createExpense
+      summary: Record an expense
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpenseInput'
+      responses:
+        '201':
+          description: Expense created
+          headers:
+            Location:
+              description: URL of the created expense
+              schema:
+                type: string
+                format: uri-reference
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseResource'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /expenses/{expense}:
+    parameters:
+      - $ref: '#/components/parameters/ExpenseId'
+    get:
+      tags: [Expenses]
+      operationId: getExpense
+      summary: Get an expense
+      responses:
+        '200':
+          description: Expense detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseResource'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Expenses]
+      operationId: updateExpense
+      summary: Update an expense
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpenseInput'
+      responses:
+        '200':
+          description: Expense updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseResource'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+    delete:
+      tags: [Expenses]
+      operationId: deleteExpense
+      summary: Delete an expense
+      responses:
+        '204':
+          description: Expense deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /categories:
+    get:
+      tags: [Categories]
+      operationId: listCategories
+      summary: List categories
+      description: Sorted by name. Archived categories are hidden unless requested.
+      parameters:
+        - $ref: '#/components/parameters/IncludeArchived'
+      responses:
+        '200':
+          description: Categories, system and custom
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryCollection'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+    post:
+      tags: [Categories]
+      operationId: createCategory
+      summary: Create a category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryInput'
+      responses:
+        '201':
+          description: Category created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryResource'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /categories/{category}:
+    parameters:
+      - $ref: '#/components/parameters/CategoryId'
+    get:
+      tags: [Categories]
+      operationId: getCategory
+      summary: Get a category
+      responses:
+        '200':
+          description: Category detail
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryResource'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Categories]
+      operationId: updateCategory
+      summary: Update a custom category
+      description: System categories are read-only and return 403.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CategoryInput'
+      responses:
+        '200':
+          description: Category updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryResource'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+    delete:
+      tags: [Categories]
+      operationId: deleteCategory
+      summary: Delete an unused custom category
+      description: Categories referenced by expenses cannot be deleted; archive them instead.
+      responses:
+        '204':
+          description: Category deleted
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+  /categories/{category}/archive:
+    parameters:
+      - $ref: '#/components/parameters/CategoryId'
+    post:
+      tags: [Categories]
+      operationId: archiveCategory
+      summary: Archive a category
+      description: Hides the category from pickers while keeping its history. Idempotent.
+      responses:
+        '200':
+          description: Category archived
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryResource'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /categories/{category}/unarchive:
+    parameters:
+      - $ref: '#/components/parameters/CategoryId'
+    post:
+      tags: [Categories]
+      operationId: unarchiveCategory
+      summary: Restore an archived category
+      responses:
+        '200':
+          description: Category restored
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryResource'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+  /stats/summary:
+    get:
+      tags: [Stats]
+      operationId: getStatsSummary
+      summary: Summary for a date range
+      description: Compares the range with the previous period of equal length.
+      parameters:
+        - $ref: '#/components/parameters/From'
+        - $ref: '#/components/parameters/To'
+        - $ref: '#/components/parameters/StatsCurrency'
+        - $ref: '#/components/parameters/IfNoneMatch'
+      responses:
+        '200':
+          description: Summary
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StatsSummaryResource'
+        '304':
+          $ref: '#/components/responses/NotModified'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /stats/by-category:
+    get:
+      tags: [Stats]
+      operationId: getStatsByCategory
+      summary: Spending per category for a date range
+      parameters:
+        - $ref: '#/components/parameters/From'
+        - $ref: '#/components/parameters/To'
+        - $ref: '#/components/parameters/StatsCurrency'
+        - $ref: '#/components/parameters/IfNoneMatch'
+      responses:
+        '200':
+          description: Totals per category, largest first
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategoryStatsCollection'
+        '304':
+          $ref: '#/components/responses/NotModified'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /stats/timeseries:
+    get:
+      tags: [Stats]
+      operationId: getStatsTimeseries
+      summary: Spending over time for a date range
+      parameters:
+        - $ref: '#/components/parameters/From'
+        - $ref: '#/components/parameters/To'
+        - $ref: '#/components/parameters/StatsCurrency'
+        - $ref: '#/components/parameters/Granularity'
+        - $ref: '#/components/parameters/IfNoneMatch'
+      responses:
+        '200':
+          description: One bucket per day, ISO week (Monday start) or month
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TimeseriesCollection'
+        '304':
+          $ref: '#/components/responses/NotModified'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+  /stats/top-expenses:
+    get:
+      tags: [Stats]
+      operationId: getStatsTopExpenses
+      summary: Largest expenses for a date range
+      description: Sorted by amount descending, then by date descending. Only expenses in the requested currency.
+      parameters:
+        - $ref: '#/components/parameters/From'
+        - $ref: '#/components/parameters/To'
+        - $ref: '#/components/parameters/StatsCurrency'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/IfNoneMatch'
+      responses:
+        '200':
+          description: Top expenses, largest first
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseListResource'
+        '304':
+          $ref: '#/components/responses/NotModified'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /health:
+    get:
+      tags: [Health]
+      operationId: getHealth
+      summary: Liveness probe
+      security: []
+      servers:
+        - url: http://localhost:8000
+          description: Local development (outside the API prefix)
+      responses:
+        '200':
+          description: Process is alive
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResource'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+  /ready:
+    get:
+      tags: [Health]
+      operationId: getReady
+      summary: Readiness probe
+      description: Checks database connectivity.
+      security: []
+      servers:
+        - url: http://localhost:8000
+          description: Local development (outside the API prefix)
+      responses:
+        '200':
+          description: Ready to serve traffic
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/HealthResource'
+        '503':
+          description: Dependency unavailable
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetails'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Sanctum personal access token issued by /auth/login or /auth/register.
+  headers:
+    ETag:
+      description: Validator for the response body; send it back in If-None-Match.
+      schema:
+        type: string
+  parameters:
+    IfNoneMatch:
+      name: If-None-Match
+      in: header
+      required: false
+      description: Return 304 when the stored ETag still matches.
+      schema:
+        type: string
+    ExpenseId:
+      name: expense
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    CategoryId:
+      name: category
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    CategoryFilter:
+      name: category_id
+      in: query
+      required: false
+      schema:
+        type: string
+        format: uuid
+    IncludeArchived:
+      name: include_archived
+      in: query
+      required: false
+      schema:
+        type: boolean
+        default: false
+    From:
+      name: from
+      in: query
+      required: true
+      description: Earliest date (inclusive).
+      schema:
+        type: string
+        format: date
+    To:
+      name: to
+      in: query
+      required: true
+      description: Latest date (inclusive). Must not be before `from`.
+      schema:
+        type: string
+        format: date
+    Query:
+      name: q
+      in: query
+      required: false
+      description: Case-insensitive text match on the expense description.
+      schema:
+        type: string
+        minLength: 1
+        maxLength: 100
+    Page:
+      name: page
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        default: 1
+    PerPage:
+      name: per_page
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 100
+        default: 50
+    StatsCurrency:
+      name: currency
+      in: query
+      required: false
+      description: Only expenses in this currency are aggregated. Totals are never mixed across currencies.
+      schema:
+        $ref: '#/components/schemas/Currency'
+    Limit:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 10
+        default: 5
+    Granularity:
+      name: granularity
+      in: query
+      required: false
+      schema:
+        type: string
+        enum: [day, week, month]
+        default: day
+  responses:
+    Unauthorized:
+      description: Missing or invalid token
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    Forbidden:
+      description: Action not allowed for this resource
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    NotFound:
+      description: Resource not found
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    Conflict:
+      description: Resource is in use and cannot be removed
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    ValidationError:
+      description: Invalid data
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    TooManyRequests:
+      description: Rate limit exceeded
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+            minimum: 0
+      content:
+        application/problem+json:
+          schema:
+            $ref: '#/components/schemas/ProblemDetails'
+    NotModified:
+      description: The stored representation matches If-None-Match
+  schemas:
+    Locale:
+      type: string
+      enum: [it, en]
+    Currency:
+      type: string
+      pattern: '^[A-Z]{3}$'
+      description: ISO 4217 code.
+    RegisterInput:
+      type: object
+      required: [name, email, password]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        email:
+          type: string
+          format: email
+          maxLength: 255
+        password:
+          type: string
+          minLength: 8
+          maxLength: 255
+          writeOnly: true
+        locale:
+          $ref: '#/components/schemas/Locale'
+    LoginInput:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          writeOnly: true
+    ProfileInput:
+      type: object
+      minProperties: 1
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 120
+        locale:
+          $ref: '#/components/schemas/Locale'
+    User:
+      type: object
+      required: [id, name, email, locale, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        email:
+          type: string
+          format: email
+        locale:
+          $ref: '#/components/schemas/Locale'
+        created_at:
+          type: string
+          format: date-time
+    UserResource:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/User'
+    AuthResource:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [token, user]
+          properties:
+            token:
+              type: string
+              description: Bearer token; shown once.
+            user:
+              $ref: '#/components/schemas/User'
+    Expense:
+      type: object
+      required: [id, description, amount_cents, currency, category_id, spent_on, created_at, updated_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        description:
+          type: string
+          minLength: 1
+          maxLength: 255
+        amount_cents:
+          type: integer
+          format: int64
+          minimum: 1
+          description: Amount in minor currency units (cents), never floating point.
+        currency:
+          $ref: '#/components/schemas/Currency'
+        category_id:
+          type: string
+          format: uuid
+        spent_on:
+          type: string
+          format: date
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    ExpenseInput:
+      type: object
+      required: [description, amount_cents, category_id, spent_on]
+      properties:
+        description:
+          type: string
+          minLength: 1
+          maxLength: 255
+        amount_cents:
+          type: integer
+          format: int64
+          minimum: 1
+          maximum: 99999999999
+          description: Minor units, at most 999,999,999.99 in a two-decimal currency.
+        currency:
+          $ref: '#/components/schemas/Currency'
+          default: EUR
+        category_id:
+          type: string
+          format: uuid
+        spent_on:
+          type: string
+          format: date
+    ExpenseResource:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/Expense'
+    ExpenseListResource:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Expense'
+    ExpenseCollection:
+      type: object
+      required: [data, meta]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Expense'
+        meta:
+          $ref: '#/components/schemas/PaginationMeta'
+    Category:
+      type: object
+      required: [id, name, color, icon, is_system, archived, created_at]
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+          description: Localized name for system categories, free text for custom ones.
+          minLength: 1
+          maxLength: 60
+        color:
+          $ref: '#/components/schemas/HexColor'
+        icon:
+          $ref: '#/components/schemas/CategoryIcon'
+        is_system:
+          type: boolean
+          readOnly: true
+        archived:
+          type: boolean
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+    CategoryInput:
+      type: object
+      required: [name, color, icon]
+      properties:
+        name:
+          type: string
+          minLength: 1
+          maxLength: 60
+        color:
+          $ref: '#/components/schemas/HexColor'
+        icon:
+          $ref: '#/components/schemas/CategoryIcon'
+    CategoryIcon:
+      type: string
+      enum: [cart, home, car, bolt, heart, plane, coffee, gift, book, briefcase, tag, other]
+    HexColor:
+      type: string
+      pattern: '^#[0-9A-Fa-f]{6}$'
+    CategoryResource:
+      type: object
+      required: [data]
+      properties:
+        data:
+          $ref: '#/components/schemas/Category'
+    CategoryCollection:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Category'
+    StatsSummaryResource:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: object
+          required: [currency, total_cents, count, daily_average_cents, previous_period, top_category, biggest_expense]
+          properties:
+            currency:
+              $ref: '#/components/schemas/Currency'
+            total_cents:
+              type: integer
+              format: int64
+            count:
+              type: integer
+            daily_average_cents:
+              type: integer
+              format: int64
+            previous_period:
+              type: object
+              required: [total_cents, delta_percent]
+              properties:
+                total_cents:
+                  type: integer
+                  format: int64
+                delta_percent:
+                  type: [number, 'null']
+                  description: Null when the previous period has no spending.
+            top_category:
+              oneOf:
+                - $ref: '#/components/schemas/CategoryStat'
+                - type: 'null'
+            biggest_expense:
+              oneOf:
+                - $ref: '#/components/schemas/Expense'
+                - type: 'null'
+    CategoryStat:
+      type: object
+      required: [category_id, name, total_cents, count, share_percent]
+      properties:
+        category_id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        total_cents:
+          type: integer
+          format: int64
+        count:
+          type: integer
+        share_percent:
+          type: number
+    CategoryStatsCollection:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/CategoryStat'
+    TimeseriesBucket:
+      type: object
+      required: [period_start, total_cents, count]
+      properties:
+        period_start:
+          type: string
+          format: date
+          description: First day of the bucket (ISO Monday for weeks, first day for months).
+        total_cents:
+          type: integer
+          format: int64
+        count:
+          type: integer
+    TimeseriesCollection:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/TimeseriesBucket'
+    HealthResource:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [ok, ready]
+    PaginationMeta:
+      type: object
+      required: [current_page, per_page, total, last_page]
+      properties:
+        current_page:
+          type: integer
+        per_page:
+          type: integer
+        total:
+          type: integer
+        last_page:
+          type: integer
+    ProblemDetails:
+      type: object
+      description: Error according to RFC 9457.
+      required: [title, status]
+      properties:
+        type:
+          type: string
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        errors:
+          type: object
+          description: Validation errors keyed by field.
+          additionalProperties:
+            type: array
+            items:
+              type: string

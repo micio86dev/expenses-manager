@@ -1,0 +1,37 @@
+# Production stack: immutable images, no source bind mounts, no Vite dev server.
+name: expenses-manager
+
+services:
+  php:
+    build:
+      context: ./backend
+      dockerfile: docker/Dockerfile
+      target: prod
+    restart: unless-stopped
+    env_file: ./backend/.env
+    volumes:
+      - sqlite-data:/var/www/html/database/sqlite
+    healthcheck:
+      test: ["CMD", "pgrep", "php-fpm"]
+      interval: 15s
+      timeout: 3s
+      retries: 3
+
+  nginx:
+    image: nginx:1.29-alpine
+    restart: unless-stopped
+    depends_on:
+      php:
+        condition: service_healthy
+    ports:
+      - "8080:80"
+    volumes:
+      - ./backend/docker/nginx/prod.conf:/etc/nginx/conf.d/default.conf:ro
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1/ready"]
+      interval: 15s
+      timeout: 3s
+      retries: 3
+
+volumes:
+  sqlite-data:
