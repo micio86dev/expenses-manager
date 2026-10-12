@@ -386,6 +386,8 @@ paths:
                 $ref: '#/components/schemas/StatsSummaryResource'
         '304':
           $ref: '#/components/responses/NotModified'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '422':
@@ -412,6 +414,8 @@ paths:
                 $ref: '#/components/schemas/CategoryStatsCollection'
         '304':
           $ref: '#/components/responses/NotModified'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '422':
@@ -439,6 +443,8 @@ paths:
                 $ref: '#/components/schemas/TimeseriesCollection'
         '304':
           $ref: '#/components/responses/NotModified'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '422':
