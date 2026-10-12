@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Enforces Conventional Commits. Merge and revert commits created by git are allowed.
+set -euo pipefail
+
+subject="$(head -n 1 "$1")"
+pattern='^(feat|fix|docs|style|refactor|perf|test|build|ci|chore|revert|merge)(\([a-z0-9._/-]+\))?!?: .+|^Merge |^Revert '
+
+if [[ ! "$subject" =~ $pattern ]]; then
+    echo "commit-msg: subject must follow Conventional Commits, e.g. feat(expenses): add filters" >&2
+    exit 1
+fi
