@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Behaviour tests for start.sh that need neither Docker nor network access.
-# Usage: scripts/test-start.sh
+# Behaviour tests for start.sh and check-readme.sh that need neither Docker nor network access.
+# Usage: scripts/test-scripts.sh
 set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")/.."
@@ -41,8 +41,34 @@ expect "--down stops the stack" 0 "docker compose down" -- env NO_COLOR=1 ./star
 expect "--reset deletes volumes after confirmation" 0 "down --volumes" -- env NO_COLOR=1 ./start.sh --reset --dry-run
 expect "--test runs the backend gate" 0 "vendor/bin/phpstan" -- env NO_COLOR=1 ./start.sh --test --dry-run
 
+# check-readme.sh against throwaway READMEs (tick is a backtick, kept out of single quotes for shellcheck).
+tick=$(printf '\140')
+readme="$(mktemp)"
+trap 'rm -f "$readme"' EXIT
+check_readme() {
+    README_FILE="$readme" scripts/check-readme.sh 2>&1
+}
+expect_readme() {
+    local description="$1" code="$2" needle="$3" content="$4" output status=0
+    printf '%s\n' "$content" >"$readme"
+    output="$(check_readme)" || status=$?
+    if [[ "$status" -ne "$code" || "$output" != *"$needle"* ]]; then
+        echo "FAIL: $description (exit $status, wanted $code and '$needle')" >&2
+        failures=$((failures + 1))
+    else
+        echo "ok:   $description"
+    fi
+}
+
+expect_readme "check-readme accepts real references" 0 "valid" "Run ${tick}make test${tick} and ${tick}./start.sh --demo${tick}. Set ${tick}API_PORT${tick}."
+expect_readme "check-readme ignores flags outside start.sh commands" 0 "valid" "Use ${tick}git commit --amend${tick}."
+expect_readme "check-readme rejects a missing make target" 1 "target 'nope'" "Run ${tick}make nope${tick}."
+expect_readme "check-readme rejects a missing sub-repo target" 1 "target 'nope'" "Run ${tick}make -C backend nope${tick}."
+expect_readme "check-readme rejects a missing start.sh flag" 1 "no flag '--wat'" "Run ${tick}./start.sh --wat${tick}."
+expect_readme "check-readme rejects an unknown env var" 1 "FOO_BAR" "Set ${tick}FOO_BAR${tick}."
+
 if ((failures > 0)); then
-    echo "test-start: $failures failure(s)" >&2
+    echo "test-scripts: $failures failure(s)" >&2
     exit 1
 fi
-echo "test-start: all checks passed"
+echo "test-scripts: all checks passed"

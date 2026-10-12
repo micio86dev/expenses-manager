@@ -1,13 +1,9 @@
 # Dormant until a remote exists: runs on demand only.
-# Re-enable the push and pull_request triggers once the superproject has a remote.
+# To enable it, add push and pull_request triggers for main and develop under `on:`.
 name: root
 
 on:
   workflow_dispatch:
-  # push:
-  #   branches: [main, develop]
-  # pull_request:
-  #   branches: [main, develop]
 
 permissions:
   contents: read
@@ -35,3 +31,38 @@ jobs:
         run: docker build --target prod -f backend/docker/Dockerfile -t expenses-backend:ci backend
       - name: Build frontend prod image
         run: docker build --target prod -f frontend/docker/Dockerfile -t expenses-frontend:ci frontend
+
+  scripts-and-docs:
+    name: Shell scripts and README references
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+      - name: Install shfmt
+        run: sudo apt-get update && sudo apt-get install -y shfmt
+      - name: shellcheck
+        run: shellcheck start.sh scripts/*.sh .githooks/*
+      - name: shfmt
+        run: shfmt -d start.sh scripts/*.sh
+      - name: start.sh behaviour tests
+        run: scripts/test-scripts.sh
+      - name: README references exist
+        run: scripts/check-readme.sh
+
+  # Guardian Angel review of the last commit. Dormant like the rest of this workflow.
+  gga:
+    name: Guardian Angel review
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          fetch-depth: 2
+      - name: Install Guardian Angel and the Claude Code CLI (the configured provider)
+        run: |
+          npm install -g @anthropic-ai/claude-code
+          git clone --depth 1 https://github.com/Gentleman-Programming/gentleman-guardian-angel.git "$RUNNER_TEMP/gga"
+          echo "$RUNNER_TEMP/gga/bin" >> "$GITHUB_PATH"
+      - run: gga run --ci
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}

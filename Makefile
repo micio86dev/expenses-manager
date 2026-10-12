@@ -59,8 +59,8 @@ contract-check: ## Fail when the contract copies drift from the source of truth
 check-readme: ## Fail when the README references a missing target, flag or env var
 	scripts/check-readme.sh
 
-test-scripts: ## Run the behaviour tests of start.sh (no Docker needed)
-	scripts/test-start.sh
+test-scripts: ## Run the behaviour tests of start.sh and check-readme.sh (no Docker needed)
+	scripts/test-scripts.sh
 
 review: ## Guardian Angel review of the whole branch against develop
 	gga run --pr-mode

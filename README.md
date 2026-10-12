@@ -255,7 +255,7 @@ Stack and tooling:
 | `make e2e` | Playwright suites |
 | `make contract` / `make contract-check` | Copy the contract into both submodules / fail on drift |
 | `make check-readme` | `scripts/check-readme.sh` |
-| `make test-scripts` | `scripts/test-start.sh`: behaviour tests of `start.sh` (no Docker needed) |
+| `make test-scripts` | `scripts/test-scripts.sh`: behaviour tests of `start.sh` and `check-readme.sh` (no Docker needed) |
 | `make review` | `gga run --pr-mode` |
 | `make memory-sync` | `engram sync` |
 | `make release BUMP=patch` | `scripts/release.sh` |
@@ -264,7 +264,7 @@ Submodule targets: `make -C backend format`, `make -C frontend build`, `make -C 
 `make -C frontend e2e-fullstack`.
 
 Scripts: `./start.sh` (above), `scripts/gitflow.sh`, `scripts/release.sh`,
-`scripts/test-start.sh`, `scripts/check-readme.sh` (fails when this README names a `make` target, a `start.sh` flag or an
+`scripts/test-scripts.sh`, `scripts/check-readme.sh` (fails when this README names a `make` target, a `start.sh` flag or an
 environment variable that does not exist).
 
 ## Seeding
