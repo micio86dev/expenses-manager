@@ -18,6 +18,17 @@ Le regole per chi lavora sul codice sono in `AGENTS.md`.
 
 ## Avvio rapido
 
+Se la porta 8000 è già occupata, scegline un'altra per l'API (es. `API_PORT=8100 make up`): la SPA
+userà automaticamente `http://localhost:<API_PORT>/api/v1`.
+
+I comandi artisan nel container di sviluppo vanno eseguiti come `www-data`, altrimenti i file
+SQLite creati da root non sono scrivibili dall'API:
+
+```bash
+docker compose exec -u www-data php php artisan migrate --force
+```
+
+
 ```bash
 git clone --recurse-submodules <url> expenses_manager
 cd expenses_manager
