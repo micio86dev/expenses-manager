@@ -58,13 +58,17 @@ for flag in $flags; do
 done
 
 # 3. environment variables: backticked UPPER_SNAKE names must be defined somewhere in the repository config.
+# A name counts as defined only when a config file assigns it (NAME=), keys it (NAME:) or reads it
+# (${NAME or process.env.NAME). A mention in prose or a comment does not count.
 known_sources=(
     backend/.env.example frontend/.env.example docker-compose.yml docker-compose.prod.yml start.sh
     backend/docker/php/entrypoint.sh frontend/docker/Dockerfile frontend/e2e-fullstack/env.ts
 )
 known="$(
     for file in "${known_sources[@]}"; do
-        [[ -f "$file" ]] && grep -Eo '[A-Z][A-Z0-9]*(_[A-Z0-9]+)+' "$file"
+        [[ -f "$file" ]] || continue
+        grep -Eo '[A-Z][A-Z0-9]*(_[A-Z0-9]+)+[=:]' "$file" | tr -d '=:'
+        grep -Eo '(\$\{|process\.env\.)[A-Z][A-Z0-9]*(_[A-Z0-9]+)+' "$file" | sed -E 's/^(\$\{|process\.env\.)//'
     done | sort -u
 )"
 while IFS= read -r name; do

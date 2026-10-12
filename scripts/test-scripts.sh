@@ -67,6 +67,18 @@ expect_readme "check-readme rejects a missing sub-repo target" 1 "target 'nope'"
 expect_readme "check-readme rejects a missing start.sh flag" 1 "no flag '--wat'" "Run ${tick}./start.sh --wat${tick}."
 expect_readme "check-readme rejects an unknown env var" 1 "FOO_BAR" "Set ${tick}FOO_BAR${tick}."
 
+# An env var counts as defined only when config assigns or reads it, so a prose mention must fail.
+fixture="$(mktemp -d)"
+mkdir "$fixture/scripts"
+cp scripts/check-readme.sh "$fixture/scripts/"
+printf '#!/usr/bin/env bash\n# PROSE_ONLY_NAME is mentioned in this comment only\nFIXTURE_ASSIGNED_NAME=1\n' >"$fixture/start.sh"
+chmod +x "$fixture/start.sh"
+printf 'Set %sFIXTURE_ASSIGNED_NAME%s.\n' "$tick" "$tick" >"$fixture/README.md"
+expect "check-readme accepts a name assigned in a config file" 0 "valid" -- env README_FILE="$fixture/README.md" bash "$fixture/scripts/check-readme.sh"
+printf 'Set %sPROSE_ONLY_NAME%s.\n' "$tick" "$tick" >"$fixture/README.md"
+expect "check-readme rejects a name only mentioned in prose" 1 "PROSE_ONLY_NAME" -- env README_FILE="$fixture/README.md" bash "$fixture/scripts/check-readme.sh"
+rm -rf "$fixture"
+
 if ((failures > 0)); then
     echo "test-scripts: $failures failure(s)" >&2
     exit 1

@@ -60,8 +60,9 @@ jobs:
           fetch-depth: 2
       - name: Install Guardian Angel and the Claude Code CLI (the configured provider)
         run: |
-          npm install -g @anthropic-ai/claude-code
-          git clone --depth 1 https://github.com/Gentleman-Programming/gentleman-guardian-angel.git "$RUNNER_TEMP/gga"
+          npm install -g @anthropic-ai/claude-code@2.1.296
+          git clone https://github.com/Gentleman-Programming/gentleman-guardian-angel.git "$RUNNER_TEMP/gga"
+          git -C "$RUNNER_TEMP/gga" checkout --quiet fbf1091da170a33d42cb97577a9813e652e98a4a
           echo "$RUNNER_TEMP/gga/bin" >> "$GITHUB_PATH"
       - run: gga run --ci
         env:
