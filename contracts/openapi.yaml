@@ -337,6 +337,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CategoryResource'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':
@@ -355,6 +357,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/CategoryResource'
+        '403':
+          $ref: '#/components/responses/Forbidden'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '404':
