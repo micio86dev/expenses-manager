@@ -449,6 +449,36 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '422':
           $ref: '#/components/responses/ValidationError'
+  /stats/top-expenses:
+    get:
+      tags: [Stats]
+      operationId: getStatsTopExpenses
+      summary: Largest expenses for a date range
+      description: Sorted by amount descending, then by date descending. Only expenses in the requested currency.
+      parameters:
+        - $ref: '#/components/parameters/From'
+        - $ref: '#/components/parameters/To'
+        - $ref: '#/components/parameters/StatsCurrency'
+        - $ref: '#/components/parameters/Limit'
+        - $ref: '#/components/parameters/IfNoneMatch'
+      responses:
+        '200':
+          description: Top expenses, largest first
+          headers:
+            ETag:
+              $ref: '#/components/headers/ETag'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpenseListResource'
+        '304':
+          $ref: '#/components/responses/NotModified'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
   /health:
     get:
       tags: [Health]
@@ -588,6 +618,15 @@ components:
       description: Only expenses in this currency are aggregated. Totals are never mixed across currencies.
       schema:
         $ref: '#/components/schemas/Currency'
+    Limit:
+      name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        minimum: 1
+        maximum: 10
+        default: 5
     Granularity:
       name: granularity
       in: query
@@ -782,6 +821,14 @@ components:
       properties:
         data:
           $ref: '#/components/schemas/Expense'
+    ExpenseListResource:
+      type: object
+      required: [data]
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Expense'
     ExpenseCollection:
       type: object
       required: [data, meta]
