@@ -5,7 +5,7 @@ CONTRACT := contracts/openapi.yaml
 CONTRACT_COPIES := backend/contracts/openapi.yaml frontend/contracts/openapi.yaml
 BUMP ?= patch
 
-.PHONY: help setup launch up down logs test coverage lint typecheck e2e contract contract-check check-readme review memory-sync release
+.PHONY: help setup launch up down logs test coverage lint typecheck e2e contract contract-check check-readme test-scripts review memory-sync release
 
 help: ## Show available targets
 	@awk 'BEGIN {FS = ":.*## "} /^[a-zA-Z0-9_-]+:.*## / {printf "  %-14s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
@@ -58,6 +58,9 @@ contract-check: ## Fail when the contract copies drift from the source of truth
 
 check-readme: ## Fail when the README references a missing target, flag or env var
 	scripts/check-readme.sh
+
+test-scripts: ## Run the behaviour tests of start.sh (no Docker needed)
+	scripts/test-start.sh
 
 review: ## Guardian Angel review of the whole branch against develop
 	gga run --pr-mode

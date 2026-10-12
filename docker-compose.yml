@@ -48,7 +48,7 @@ services:
       - ./frontend:/app
       - web-node-modules:/app/node_modules
     ports:
-      - "5173:5173"
+      - "${WEB_PORT:-5173}:5173"
     environment:
       VITE_API_BASE_URL: http://localhost:${API_PORT:-8000}/api/v1
     healthcheck:
