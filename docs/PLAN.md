@@ -5,7 +5,7 @@ Resume point after a context clear: find the first unchecked box and continue fr
 
 ## Phases
 
-- [ ] **Phase 1 — Root repo and skeleton**: superproject, submodules, Git Flow scripts, hooks, AGENTS.md, README, `.mcp.json`, OpenAPI contract, Docker/Makefile skeleton.
+- [x] **Phase 1 — Root repo and skeleton**: superproject, submodules, Git Flow scripts, hooks, AGENTS.md, README, `.mcp.json`, OpenAPI contract, Docker/Makefile skeleton.
 - [ ] **Phase 2 — Backend foundation**: Laravel 13 scaffold, strict tooling, Sanctum auth, ownership scope, i18n, migrations, seeders.
 - [ ] **Phase 3 — Backend categories and expenses** (TDD, contract-validated).
 - [ ] **Phase 4 — Backend stats, performance, caching**.
@@ -25,3 +25,5 @@ Per phase: `feature/<phase-slug>` → TDD (red / green / refactor) → gates gre
 ## Progress log
 
 - Plan approved; repository bootstrap started.
+- Phase 1 (2026-10-12): superproject with `backend/` and `frontend/` submodules on `main` and `develop`; Git Flow and release scripts verified in a scratch superproject (first release 0.1.0, patch bump, changelog, submodule pins); hooks; Makefile; compose stacks; `.mcp.json`; OpenAPI contract extended and lint-clean (3 accepted warnings: localhost dev URLs); Engineering-Excellence skill copied.
+- Known gaps carried forward: `backend/` and `frontend/` have no Makefile, Dockerfiles, or code yet (phases 2 and 5); `.mcp.json` servers are not verified as running (laravel-boost needs phase 2).
