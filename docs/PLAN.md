@@ -7,7 +7,7 @@ Resume point after a context clear: find the first unchecked box and continue fr
 
 - [x] **Phase 1 — Root repo and skeleton**: superproject, submodules, Git Flow scripts, hooks, AGENTS.md, README, `.mcp.json`, OpenAPI contract, Docker/Makefile skeleton.
 - [x] **Phase 2 — Backend foundation**: Laravel 13 scaffold, strict tooling, Sanctum auth, ownership scope, i18n, migrations, seeders.
-- [ ] **Phase 3 — Backend categories and expenses** (TDD, contract-validated).
+- [x] **Phase 3 — Backend categories and expenses** (TDD, contract-validated).
 - [ ] **Phase 4 — Backend stats, performance, caching**.
 - [ ] **Phase 5 — Frontend foundation**: tooling, tokens, i18n, dates facade, typed API client, layouts/nav, auth.
 - [ ] **Phase 6 — Frontend categories and expenses**.
@@ -29,3 +29,5 @@ Per phase: `feature/<phase-slug>` → TDD (red / green / refactor) → gates gre
 - Known gaps carried forward: `backend/` and `frontend/` have no Makefile, Dockerfiles, or code yet (phases 2 and 5); `.mcp.json` servers are not verified as running (laravel-boost needs phase 2).
 - Phase 2 (2026-10-12): backend foundation merged to backend `develop` (13 commits): Laravel 13 scaffold, Sanctum auth, ownership scope, i18n, RFC 9457 errors, health/ready, request-id JSON logs, seeders, arch and OpenAPI contract tests, multi-stage Docker. Gates re-run by the orchestrator: 143 tests pass, PHPStan max no errors, Pint passed, coverage 100% (PCOV).
 - Note: the superproject pin for backend was committed directly on `develop` (not via a feature branch) because the dirty submodule blocked `feature start`.
+- Phase 3 (2026-10-12): categories (system reference rows shared via explicit `IncludesUnownedRows` scope, custom CRUD, archive/unarchive) and expenses (CRUD, filters, pagination, constant-query listing) merged to backend `develop`. Gates re-run by the orchestrator: 309 tests pass, coverage 100% (PCOV), PHPStan max no errors, Pint passed. Contract gained 403 on archive/unarchive (system categories are read-only).
+- Known open items: frontend still unscaffolded (phase 5); the GGA hook ignores PHP files.
