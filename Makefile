@@ -5,15 +5,18 @@ CONTRACT := contracts/openapi.yaml
 CONTRACT_COPIES := backend/contracts/openapi.yaml frontend/contracts/openapi.yaml
 BUMP ?= patch
 
-.PHONY: help setup up down logs test coverage lint typecheck e2e contract contract-check release
+.PHONY: help setup launch up down logs test coverage lint typecheck e2e contract contract-check check-readme test-scripts review memory-sync release
 
 help: ## Show available targets
-	@awk 'BEGIN {FS = ":.*## "} /^[a-zA-Z_-]+:.*## / {printf "  %-14s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+	@awk 'BEGIN {FS = ":.*## "} /^[a-zA-Z0-9_-]+:.*## / {printf "  %-14s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
 setup: ## Activate git hooks and install dependencies
 	git config core.hooksPath .githooks
 	$(MAKE) -C backend setup
 	$(MAKE) -C frontend setup
+
+launch: ## Build, start and seed the whole stack (./start.sh --demo)
+	./start.sh --demo
 
 up: ## Start the dev stack
 	docker compose up -d --wait
@@ -52,6 +55,18 @@ contract-check: ## Fail when the contract copies drift from the source of truth
 		diff -q $(CONTRACT) $$target >/dev/null || { echo "Contract drift: $$target"; exit 1; }; \
 	done
 	@echo "Contract copies are in sync"
+
+check-readme: ## Fail when the README references a missing target, flag or env var
+	scripts/check-readme.sh
+
+test-scripts: ## Run the behaviour tests of start.sh and check-readme.sh (no Docker needed)
+	scripts/test-scripts.sh
+
+review: ## Guardian Angel review of the whole branch against develop
+	gga run --pr-mode
+
+memory-sync: ## Export new Engram memories to .engram/ chunks
+	engram sync
 
 release: ## Release all repositories (BUMP=patch|minor|major)
 	scripts/release.sh $(BUMP)
