@@ -13,3 +13,4 @@ coverage/
 .phpunit.result.cache
 .phpstan.cache
 .eslintcache
+.atl/
