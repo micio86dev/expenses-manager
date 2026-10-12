@@ -364,9 +364,10 @@ run_tests() {
 
     info "Frontend: ESLint, Prettier, vue-tsc and Vitest (coverage gate 90%)"
     run docker compose build web
-    run docker compose run --rm --no-deps -T web pnpm lint
-    run docker compose run --rm --no-deps -T web pnpm typecheck
-    run docker compose run --rm --no-deps -T web pnpm coverage
+    # CI=true lets pnpm refresh node_modules without a TTY (-T); otherwise it aborts with ERR_PNPM_ABORTED_REMOVE_MODULES_DIR_NO_TTY.
+    run docker compose run --rm --no-deps -T -e CI=true web pnpm lint
+    run docker compose run --rm --no-deps -T -e CI=true web pnpm typecheck
+    run docker compose run --rm --no-deps -T -e CI=true web pnpm coverage
     ok "test suites finished (Playwright suites need browsers: use make e2e)"
 }
 
