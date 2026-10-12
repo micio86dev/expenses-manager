@@ -1,0 +1,37 @@
+# Dormant until a remote exists: runs on demand only.
+# Re-enable the push and pull_request triggers once the superproject has a remote.
+name: root
+
+on:
+  workflow_dispatch:
+  # push:
+  #   branches: [main, develop]
+  # pull_request:
+  #   branches: [main, develop]
+
+permissions:
+  contents: read
+
+jobs:
+  contract-drift:
+    name: OpenAPI contract drift
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+      - name: Check contract copies match the source of truth
+        run: make contract-check
+
+  docker-build:
+    name: Build production images
+    runs-on: ubuntu-latest
+    needs: contract-drift
+    steps:
+      - uses: actions/checkout@v7
+        with:
+          submodules: recursive
+      - name: Build backend prod image
+        run: docker build --target prod -f backend/docker/Dockerfile -t expenses-backend:ci backend
+      - name: Build frontend prod image
+        run: docker build --target prod -f frontend/docker/Dockerfile -t expenses-frontend:ci frontend
