@@ -765,6 +765,8 @@ components:
           type: integer
           format: int64
           minimum: 1
+          maximum: 99999999999
+          description: Minor units, at most 999,999,999.99 in a two-decimal currency.
         currency:
           $ref: '#/components/schemas/Currency'
           default: EUR
