@@ -24,6 +24,14 @@
       "sessions": 4,
       "memories": 0,
       "prompts": 13
+    },
+    {
+      "id": "8ff3374f",
+      "created_by": "alessandromicelli",
+      "created_at": "2026-10-13T18:32:04.64929Z",
+      "sessions": 1,
+      "memories": 3,
+      "prompts": 7
     }
   ]
 }
