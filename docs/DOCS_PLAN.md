@@ -30,8 +30,8 @@ Branch per repo used for this work: `feature/docs-launch-tooling` (root, backend
 - [x] Mismatch fixed: the busy-port note in the Quick start. It was merged after the clone run; its final wording is covered by `check-readme.sh` and by the PR-mode review of the `feature/quick-start-ports` branch (PASSED).
 
 ## Phase 5: Review and final gates
-- [ ] `gga run --pr-mode` per repo; fix every finding (no rule disabling). Partial: PR-mode ran on the root and frontend feature branches (PASSED). On `develop` the PR range is empty, so `make review` checks nothing there. The backend's last changes were reviewed by the pre-commit hook, not by a PR-mode run.
-- [ ] Gates: Pint, Larastan, Pest, coverage >= 90; vue-tsc, ESLint, Prettier, Vitest coverage >= 90, build; shellcheck and shfmt; contract drift; `check-readme.sh`; E2E smoke. Passed: all of them, with `./start.sh --test` (Pint, Larastan, Pest 540 passed with coverage gate 90%; vue-tsc, ESLint, Prettier, Vitest 560 passed, coverage 98.6%), `pnpm build`, shellcheck, shfmt, `make contract-check`, `check-readme.sh`, `test-scripts.sh`, and the mocked Playwright suite (90 passed). Not run: the full-stack Playwright suite (`e2e:fullstack`), which needs the running stack.
+- [x] `gga run --pr-mode` per repo; fix every finding (no rule disabling). Done on each repo's feature branch (PR range `develop...HEAD`): root (README and credentials), frontend (RegisterView fix), backend (DemoSeeder note), all PASSED. On `develop` the PR range is empty, so `make review` checks nothing there; the review has to run on a branch.
+- [ ] Gates: Pint, Larastan, Pest, coverage >= 90; vue-tsc, ESLint, Prettier, Vitest coverage >= 90, build; shellcheck and shfmt; contract drift; `check-readme.sh`; E2E smoke. Passed: all of them, with `./start.sh --test` (Pint, Larastan, Pest 540 passed with coverage gate 90%; vue-tsc, ESLint, Prettier, Vitest 560 passed, coverage 98.6%), `pnpm build`, shellcheck, shfmt, `make contract-check`, `check-readme.sh`, `test-scripts.sh`, and the mocked Playwright suite (90 passed). Full-stack Playwright (`e2e:fullstack`) against the running demo stack: 1 passed (register, categorise, spend, review, sign out).
 - [x] Final pass for leftover non-English text and dead docs. The repository's own text is English (the `it` translation files excepted); two PHP tests with Italian literals now use translation keys. Accepted exception: the Engram chunks already published (`96a23c5a`, `2e4de61b`) hold the author's Italian chat messages as recorded data. The author chose to keep them over rewriting the public history; the README's Engram section says so.
 - [x] Merge into `develop`; pin in root. Every feature branch is merged; the root pins the released commits of `backend` and `frontend`.
 
@@ -39,7 +39,7 @@ Branch per repo used for this work: `feature/docs-launch-tooling` (root, backend
 - [x] Update root README, component READMEs and AGENTS.md to the refactored code, including the public repositories and the rebuild-from-prompts section.
 - [x] Run `check-readme.sh` after the last README edit (passes).
 - [x] Clean-clone check again from the public repository: run on `main` (v0.2.0), with the Quick start ports and the full smoke, all green. The busy-port wording is on `develop` and reaches `main` with the next release.
-- [ ] Engram: replace outdated observations, `engram sync`, commit `.engram/`. Not done: the sync needs a decision on the orchestration prompts still in the local memory.
+- [x] Engram: `engram sync` and commit `.engram/` (chunk `7c5b6123`: 13 prompts, all the author's own; the four reappeared GGA reviewer prompts were deleted first, as agreed). Replacing outdated observations is not done: the memory still describes the pre-publication state in places.
 - [ ] `gga run --pr-mode` per repo, final gates, merge into `develop`. Same partial status as phase 5.
 
 ## Release
