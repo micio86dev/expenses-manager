@@ -10,6 +10,7 @@ PROD_API_PORT=8080
 DEFAULT_WEB_PORT=5173
 WAIT_SECONDS=180
 # Public sample credentials created by the Demo seeder (backend/database/seeders/Demo/DemoSeeder.php).
+# Printed after a --demo start. Must match DemoSeeder::EMAIL and DemoSeeder::PASSWORD in the backend.
 DEMO_EMAIL="demo@example.com"
 DEMO_PASSWORD="demo-password"
 REFERENCE_SEEDER='Database\Seeders\Reference\ReferenceSeeder'
