@@ -1,0 +1,13 @@
+# Gentleman Guardian Angel configuration for the superproject.
+# Review rules live in AGENTS.md ("Review rules"). Run via .githooks/pre-commit (gga install is not used).
+PROVIDER="claude"
+RULES_FILE="AGENTS.md"
+STRICT_MODE="true"
+PR_BASE_BRANCH="develop"
+TIMEOUT="300"
+
+# Shell scripts, CI and compose configuration, Makefile and docs owned by the superproject.
+FILE_PATTERNS="*.sh,*.yml,*.yaml,Makefile,*.md"
+
+# Chunks exported by `engram sync` are machine generated.
+EXCLUDE_PATTERNS=".engram/*"

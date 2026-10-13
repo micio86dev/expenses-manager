@@ -1,13 +1,16 @@
 #!/usr/bin/env bash
 # Pre-commit gate for the superproject.
-# Runs the Gentleman Guardian Angel review when installed, and the contract drift check
-# when a contract file is staged. Submodules run their own hooks from their repositories.
+# 1. Contract drift check when a contract file is staged.
+# 2. Gentleman Guardian Angel review of the staged files (last step; skipped when gga is missing).
+# Submodules run their own hooks from their repositories.
 set -euo pipefail
-
-if command -v gga >/dev/null 2>&1; then
-    gga run
-fi
 
 if git diff --cached --name-only | grep -q '^contracts/'; then
     make contract-check
+fi
+
+if command -v gga >/dev/null 2>&1; then
+    gga run
+else
+    echo "pre-commit: gga not found, skipping the Guardian Angel review (brew install gentleman-programming/tap/gga)" >&2
 fi

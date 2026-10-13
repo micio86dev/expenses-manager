@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.2.0] - 2026-10-13
+
+- docs: publish the repositories, enable CI on push and document the rebuild
+- chore(memory): sync engram memories
+- chore(submodules): pin frontend to develop after the API test fix
+- fix(launch): run frontend test gates with CI=true
+- chore(submodules): pin backend and frontend to develop after docs-launch-tooling
+- fix(docs): count only defined env vars and pin the dormant gga job
+- docs: add review rules and tooling to agents guide
+- ci(docs): add check-readme gate, script tests and dormant root jobs
+- chore(engram): sync project memory chunks
+- docs: rewrite root readme in english
+- feat(launch): add start.sh launcher with configurable ports
+- chore(tooling): add engram config, gga review and make targets
+- docs: add docs and launch tooling plan
+
 ## [0.1.0] - 2026-10-12
 
 - docs: add engineering report, root ci workflow and refactor brief
