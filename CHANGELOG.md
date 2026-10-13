@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.2] - 2026-10-13
+
+- docs(plan): record the full-stack run, the GGA PR reviews and the Engram sync
+- chore(engram): sync memories and pin frontend after the register test fix
+- docs: name DemoSeeder as the source of the demo credentials
+- docs(plan): record the v0.2.1 release and the green CI on main
+
 ## [0.2.1] - 2026-10-13
 
 - ci(root): pin shfmt to the version the scripts are formatted with
