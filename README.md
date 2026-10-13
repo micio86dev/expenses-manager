@@ -165,11 +165,7 @@ The API docs UI is not served yet: the backend has no Scalar or Swagger route, s
 prints the location of `contracts/openapi.yaml` instead of a docs link (it only prints one if
 `/docs` answers).
 
-Ports are configurable. If 8000 or 5173 is taken, pick others:
-
-```bash
-API_PORT=8100 WEB_PORT=5174 ./start.sh --demo
-```
+Ports are configurable: see the busy-port note in [Quick start](#quick-start).
 
 ### Rebuild the project from the prompts
 
