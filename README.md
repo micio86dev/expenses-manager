@@ -143,6 +143,13 @@ and starts the stack, installs the backend dependencies, migrates, seeds, waits 
 `/health`, `/ready` and the SPA, then prints the URLs. With `--demo` it also prints the demo login
 (`demo@example.com` / `demo-password`). It never overwrites an existing `.env` value.
 
+Ports 8000 (API) and 5173 (SPA) are often taken by other projects. If the script reports a busy
+port, start it on free ones instead; the URLs it prints then use those ports:
+
+```bash
+API_PORT=8100 WEB_PORT=5174 ./start.sh --demo
+```
+
 | Flag | Effect |
 | --- | --- |
 | `--demo` | Also run the Demo seeders (development stack only) |
