@@ -1,7 +1,7 @@
 # Docs and Launch Tooling Plan
 
 Source: `REFACTOR_BRIEF.md`. Resume from the first unchecked box after a context clear.
-Branch per repo: `feature/docs-launch-tooling` (root, backend, frontend). Merge `--no-ff` into `develop`; root pins submodules last. No release.
+Branch per repo used for this work: `feature/docs-launch-tooling` (root, backend, frontend), merged into `develop`. Merge `--no-ff` into `develop`; root pins submodules last. No release.
 
 ## Phase 1: Tooling (Engram and Guardian Angel)
 - [x] Engram: `.engram/config.json` with `project_name: expenses_manager` in root, backend, frontend. (verified in all three repositories)
@@ -24,22 +24,26 @@ Branch per repo: `feature/docs-launch-tooling` (root, backend, frontend). Merge 
 - [x] Root AGENTS.md: stop saying the root README is Italian.
 
 ## Phase 4: Verify like a new user
-- [ ] Clean clone with `--recurse-submodules`; follow the README literally; `./start.sh --demo`.
-- [ ] Smoke: `/health`, `/ready`, frontend 200, register, login, category, expense, stats.
-- [ ] `./start.sh --test`; `./start.sh --down`; `./start.sh --prod --dry-run`.
-- [ ] Every mismatch fixed in README or script, then the whole flow rerun.
+- [x] Clean clone with `--recurse-submodules` from the public GitHub repository; `./start.sh --demo` run literally. Default ports 8000 and 5173 were busy on the test machine, so the launcher stopped with its fix message; the run passed with `API_PORT=8100 WEB_PORT=5174`, and the Quick start now names that fix.
+- [x] Smoke on the clone: `/health`, `/ready`, SPA 200, register 201, login 200, category 201, expense 201, stats 200.
+- [x] `./start.sh --test` on the clone (backend 540 passed, 1 skipped by design; frontend 560 passed); `./start.sh --down`; `./start.sh --prod --dry-run`.
+- [x] Mismatch fixed: the busy-port note in the Quick start. It was merged after the clone run; its final wording is covered by `check-readme.sh` and by the PR-mode review of the `feature/quick-start-ports` branch (PASSED).
 
 ## Phase 5: Review and final gates
-- [ ] `gga run --pr-mode` per repo; fix every finding (no rule disabling).
-- [ ] Gates: Pint, Larastan, Pest, coverage >= 90; vue-tsc, ESLint, Prettier, Vitest coverage >= 90, build; shellcheck and shfmt; contract drift; `check-readme.sh`; E2E smoke.
-- [ ] Final pass for leftover non-English text and dead docs.
-- [ ] Merge into `develop`; pin in root.
+- [ ] `gga run --pr-mode` per repo; fix every finding (no rule disabling). Partial: PR-mode ran on the root and frontend feature branches (PASSED). On `develop` the PR range is empty, so `make review` checks nothing there. The backend's last changes were reviewed by the pre-commit hook, not by a PR-mode run.
+- [ ] Gates: Pint, Larastan, Pest, coverage >= 90; vue-tsc, ESLint, Prettier, Vitest coverage >= 90, build; shellcheck and shfmt; contract drift; `check-readme.sh`; E2E smoke. Passed: all of them, with `./start.sh --test` (Pint, Larastan, Pest 540 passed with coverage gate 90%; vue-tsc, ESLint, Prettier, Vitest 560 passed, coverage 98.6%), `pnpm build`, shellcheck, shfmt, `make contract-check`, `check-readme.sh`, `test-scripts.sh`, and the mocked Playwright suite (90 passed). Not run: the full-stack Playwright suite (`e2e:fullstack`), which needs the running stack.
+- [ ] Final pass for leftover non-English text and dead docs. Partial: the repository's own text is English (the `it` translation files excepted). Two PHP tests with Italian literals were rewritten to use translation keys. Not changed: the Engram chunks, which hold the author's Italian chat messages as data.
+- [x] Merge into `develop`; pin in root. Every feature branch is merged; the root pins the released commits of `backend` and `frontend`.
 
 ## Phase 6: Docs resync (queued by the user after the refactor)
-- [ ] Update root README, component READMEs and AGENTS.md to the refactored code.
-- [ ] Run `check-readme.sh`, then the clean-clone check again.
-- [ ] Engram: replace outdated observations, `engram sync`, commit `.engram/`.
-- [ ] `gga run --pr-mode` per repo, final gates, merge into `develop`.
+- [x] Update root README, component READMEs and AGENTS.md to the refactored code, including the public repositories and the rebuild-from-prompts section.
+- [x] Run `check-readme.sh` after the last README edit (passes).
+- [ ] Clean-clone check again: the last clone run happened before the busy-port wording was merged, so rerun it from the public repository.
+- [ ] Engram: replace outdated observations, `engram sync`, commit `.engram/`. Not done: the sync needs a decision on the orchestration prompts still in the local memory.
+- [ ] `gga run --pr-mode` per repo, final gates, merge into `develop`. Same partial status as phase 5.
+
+## Release
+- `v0.2.0` released with `scripts/release.sh minor` in all three repositories, pushed to GitHub with branches and tags. The release does not include the later README busy-port note and the E2E mock fix, which are on `develop`.
 
 ## Progress log
 - Root writer (2026-10-12): phase 1 root tooling, phase 2 start.sh, phase 3 check-readme, README and AGENTS.md written; shellcheck, shfmt, check-readme and contract-check green. Gaps: no API docs UI in backend; prod compose has no web service; commits blocked by the .git/hooks/pre-commit gga hook (see report).
