@@ -344,7 +344,7 @@ print_summary() {
     else
         printf '  SPA:      http://localhost:%s\n' "$WEB_PORT"
     fi
-    if ((! DRY_RUN)) && curl -fsS -o /dev/null --max-time 3 "http://localhost:${API_PORT}/docs" 2>/dev/null; then
+    if ((DRY_RUN == 0)) && curl -fsS -o /dev/null --max-time 3 "http://localhost:${API_PORT}/docs" 2>/dev/null; then
         printf '  API docs: http://localhost:%s/docs\n' "$API_PORT"
     else
         printf '  API docs: no docs UI is served by the backend; the contract is contracts/openapi.yaml\n'
