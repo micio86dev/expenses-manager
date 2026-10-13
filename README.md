@@ -373,7 +373,9 @@ publish a release; `release.sh` itself never pushes.
 
 **Engram** keeps project memory for AI agents. `.engram/config.json` names the shared project
 `expenses_manager` in all three repositories, so root, backend and frontend sessions share one
-memory. Memories are exported as compressed chunks into `.engram/` and committed:
+memory. Memories are exported as compressed chunks into `.engram/` and committed. The chunks
+record the author's chat messages as they were written, Italian included: they are data, not project
+files, so the English-only rule does not cover them:
 
 ```bash
 make memory-sync            # engram sync: export new memories to .engram/

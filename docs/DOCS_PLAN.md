@@ -32,13 +32,13 @@ Branch per repo used for this work: `feature/docs-launch-tooling` (root, backend
 ## Phase 5: Review and final gates
 - [ ] `gga run --pr-mode` per repo; fix every finding (no rule disabling). Partial: PR-mode ran on the root and frontend feature branches (PASSED). On `develop` the PR range is empty, so `make review` checks nothing there. The backend's last changes were reviewed by the pre-commit hook, not by a PR-mode run.
 - [ ] Gates: Pint, Larastan, Pest, coverage >= 90; vue-tsc, ESLint, Prettier, Vitest coverage >= 90, build; shellcheck and shfmt; contract drift; `check-readme.sh`; E2E smoke. Passed: all of them, with `./start.sh --test` (Pint, Larastan, Pest 540 passed with coverage gate 90%; vue-tsc, ESLint, Prettier, Vitest 560 passed, coverage 98.6%), `pnpm build`, shellcheck, shfmt, `make contract-check`, `check-readme.sh`, `test-scripts.sh`, and the mocked Playwright suite (90 passed). Not run: the full-stack Playwright suite (`e2e:fullstack`), which needs the running stack.
-- [ ] Final pass for leftover non-English text and dead docs. Partial: the repository's own text is English (the `it` translation files excepted). Two PHP tests with Italian literals were rewritten to use translation keys. Not changed: the Engram chunks, which hold the author's Italian chat messages as data.
+- [x] Final pass for leftover non-English text and dead docs. The repository's own text is English (the `it` translation files excepted); two PHP tests with Italian literals now use translation keys. Accepted exception: the Engram chunks already published (`96a23c5a`, `2e4de61b`) hold the author's Italian chat messages as recorded data. The author chose to keep them over rewriting the public history; the README's Engram section says so.
 - [x] Merge into `develop`; pin in root. Every feature branch is merged; the root pins the released commits of `backend` and `frontend`.
 
 ## Phase 6: Docs resync (queued by the user after the refactor)
 - [x] Update root README, component READMEs and AGENTS.md to the refactored code, including the public repositories and the rebuild-from-prompts section.
 - [x] Run `check-readme.sh` after the last README edit (passes).
-- [ ] Clean-clone check again: the last clone run happened before the busy-port wording was merged, so rerun it from the public repository.
+- [x] Clean-clone check again from the public repository: run on `main` (v0.2.0), with the Quick start ports and the full smoke, all green. The busy-port wording is on `develop` and reaches `main` with the next release.
 - [ ] Engram: replace outdated observations, `engram sync`, commit `.engram/`. Not done: the sync needs a decision on the orchestration prompts still in the local memory.
 - [ ] `gga run --pr-mode` per repo, final gates, merge into `develop`. Same partial status as phase 5.
 
