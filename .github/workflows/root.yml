@@ -42,8 +42,12 @@ jobs:
       - uses: actions/checkout@v7
         with:
           submodules: recursive
-      - name: Install shfmt
-        run: sudo apt-get update && sudo apt-get install -y shfmt
+      - name: Install shfmt 3.14.1 (the version the scripts are formatted with)
+        run: |
+          curl -fsSL -o "$RUNNER_TEMP/shfmt" https://github.com/mvdan/sh/releases/download/v3.14.1/shfmt_v3.14.1_linux_amd64
+          echo "76e77641faa025814b77f153b29796b8e6fa2fca03e0c76a691608b86c7ea7bf  $RUNNER_TEMP/shfmt" | sha256sum --check
+          sudo install "$RUNNER_TEMP/shfmt" /usr/local/bin/shfmt
+          shfmt --version
       - name: shellcheck
         run: shellcheck start.sh scripts/*.sh .githooks/*
       - name: shfmt
