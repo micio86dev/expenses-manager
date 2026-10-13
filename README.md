@@ -141,7 +141,9 @@ cd expenses-manager
 The script checks Docker and the ports, creates the `.env` files (generating `APP_KEY`), builds
 and starts the stack, installs the backend dependencies, migrates, seeds, waits for
 `/health`, `/ready` and the SPA, then prints the URLs. With `--demo` it also prints the demo login
-(`demo@example.com` / `demo-password`). It never overwrites an existing `.env` value. The demo
+(`demo@example.com` / `demo-password`). It keeps the values already in an existing `.env`, except the
+localhost URLs (`APP_URL`, `VITE_API_BASE_URL`) and the SPA origin in `CORS_ALLOWED_ORIGINS`: those
+follow the ports of each run, and any other origin you listed stays. The demo
 account is defined in the backend seeder, [`DemoSeeder.php`](backend/database/seeders/Demo/DemoSeeder.php)
 (`EMAIL` and `PASSWORD`); the launcher prints the same pair, so change both if you change it.
 

@@ -182,6 +182,36 @@ has_env_value() {
     grep -Eq "^${key}=.+" "$file"
 }
 
+# Prints the value of KEY in the env file (empty when absent).
+env_value() {
+    local file="$1" key="$2"
+    awk -v key="$key" 'index($0, key "=") == 1 { print substr($0, length(key) + 2); exit }' "$file"
+}
+
+# Re-points a localhost URL at this run's port. Only localhost URLs are rewritten: a value that
+# points elsewhere is the person's own choice and stays as it is.
+sync_local_url() {
+    local file="$1" key="$2" value="$3" current
+    current="$(env_value "$file" "$key")"
+    if [[ "$current" == http://localhost:* && "$current" != "$value" ]]; then
+        set_env_value "$file" "$key" "$value"
+        ok "$key in $file now uses $value"
+    fi
+}
+
+# Adds the SPA origin to CORS_ALLOWED_ORIGINS, keeping the origins already listed.
+allow_origin() {
+    local file="$1" origin="$2" current
+    current="$(env_value "$file" CORS_ALLOWED_ORIGINS)"
+    case ",${current}," in
+        *",${origin},"*) ;;
+        *)
+            set_env_value "$file" CORS_ALLOWED_ORIGINS "${current:+${current},}${origin}"
+            ok "CORS_ALLOWED_ORIGINS in $file now allows $origin"
+            ;;
+    esac
+}
+
 random_secret() {
     head -c 32 /dev/urandom | base64 | tr -d '\n'
 }
@@ -189,6 +219,7 @@ random_secret() {
 ensure_env_files() {
     info "Checking .env files"
     local backend_env="backend/.env" frontend_env="frontend/.env"
+    local api_url="http://localhost:${API_PORT}" web_origin="http://localhost:${WEB_PORT}"
 
     if [[ ! -f backend/.env.example || ! -f frontend/.env.example ]]; then
         problem "backend/.env.example or frontend/.env.example is missing." "initialise the submodules: git submodule update --init --recursive."
@@ -200,12 +231,16 @@ ensure_env_files() {
             printf '  + create %s from backend/.env.example (APP_KEY generated, APP_URL=http://localhost:%s)\n' "$backend_env" "$API_PORT"
         else
             cp backend/.env.example "$backend_env"
-            set_env_value "$backend_env" APP_URL "http://localhost:${API_PORT}"
-            ((PROD)) || set_env_value "$backend_env" CORS_ALLOWED_ORIGINS "http://localhost:${WEB_PORT}"
+            set_env_value "$backend_env" APP_URL "$api_url"
+            ((PROD)) || set_env_value "$backend_env" CORS_ALLOWED_ORIGINS "$web_origin"
             ok "created $backend_env"
         fi
     else
-        ok "$backend_env exists (values are never overwritten)"
+        ok "$backend_env exists (your values are kept)"
+        if ((DRY_RUN == 0)); then
+            sync_local_url "$backend_env" APP_URL "$api_url"
+            ((PROD)) || allow_origin "$backend_env" "$web_origin"
+        fi
     fi
 
     if [[ -f "$backend_env" ]] && ! has_env_value "$backend_env" APP_KEY; then
@@ -222,11 +257,14 @@ ensure_env_files() {
             printf '  + create %s from frontend/.env.example (VITE_API_BASE_URL on port %s)\n' "$frontend_env" "$API_PORT"
         else
             cp frontend/.env.example "$frontend_env"
-            set_env_value "$frontend_env" VITE_API_BASE_URL "http://localhost:${API_PORT}/api/v1"
+            set_env_value "$frontend_env" VITE_API_BASE_URL "${api_url}/api/v1"
             ok "created $frontend_env"
         fi
     else
-        ok "$frontend_env exists (values are never overwritten)"
+        ok "$frontend_env exists (your values are kept)"
+        if ((DRY_RUN == 0)); then
+            sync_local_url "$frontend_env" VITE_API_BASE_URL "${api_url}/api/v1"
+        fi
     fi
 }
 
@@ -423,4 +461,6 @@ main() {
     fi
 }
 
-main "$@"
+if [[ "${BASH_SOURCE[0]}" == "$0" ]]; then
+    main "$@"
+fi
