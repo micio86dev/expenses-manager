@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.2.3] - 2026-10-13
+
+- chore(engram): sync memories after the launcher and validation fixes
+- docs(plan): record phase 7 and close the open gates
+- docs(readme): explain which .env values a re-run updates
+- fix(launcher): keep localhost URLs and CORS in step with the ports of each run
+- chore(frontend): pin the validation hardening and the Gentle AI cache untracking
+- chore(frontend): pin the zod expense and category validation
+
 ## [0.2.2] - 2026-10-13
 
 - docs(plan): record the full-stack run, the GGA PR reviews and the Engram sync
