@@ -14,7 +14,8 @@ Personal expense tracker with an admin panel. Superproject with two submodules:
 - Git Flow in every repository: `main`, `develop`, `feature/*`, `release/*`, `hotfix/*`.
 - Per phase: `feature/<phase-slug>` → TDD (red, green, refactor) → all gates green →
   Conventional Commits → `git merge --no-ff` into `develop`.
-- Never add remotes. Never skip a gate or lower a threshold.
+- Remotes: only the three public GitHub repositories named in `README.md`. Never add any other remote.
+  Never skip a gate or lower a threshold.
 - Use `scripts/gitflow.sh` for feature and hotfix start/finish, `scripts/release.sh` for releases.
 - Commit messages follow Conventional Commits. No AI attribution lines.
 

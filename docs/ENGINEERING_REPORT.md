@@ -68,7 +68,7 @@ Status: first release. Scope: superproject, `backend/`, `frontend/`. Every numbe
 - **Account enumeration on registration:** the unique-email rule reveals whether an email exists. Inherent to the contract; limited to 10 registrations per minute per IP.
 - **Token storage:** the SPA keeps the access token in `localStorage`. A script running on the page could read it, so XSS prevention is the main control.
 - **TypeScript pinned to 6.0.x** until typescript-eslint supports a newer release.
-- **CI is dormant:** the workflows have never run on GitHub because there is no remote.
+- **CI runs on every push and pull request** to `main` and `develop` in the three public repositories. The Guardian Angel job is skipped, with a notice, while the `ANTHROPIC_API_KEY` secret is not set.
 - **Dashboard top-expenses E2E** runs against a mocked endpoint in the mocked suite; the full-stack journey does not cover it.
 
 ## 6. Release
