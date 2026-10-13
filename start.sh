@@ -252,7 +252,7 @@ check_ports() {
     else
         ok "API port ${API_PORT}"
     fi
-    if ((! PROD)); then
+    if ((PROD == 0)); then
         if port_in_use "$WEB_PORT"; then
             problem "port ${WEB_PORT} (SPA) is already in use." "choose another one, e.g. WEB_PORT=$((WEB_PORT + 1)) ./start.sh"
         else
@@ -304,7 +304,7 @@ start_stack() {
     info "Building images"
     run "${DC[@]}" build ${build_args[@]+"${build_args[@]}"}
 
-    if ((! PROD)); then
+    if ((PROD == 0)); then
         # The dev image ships Composer but no vendor directory (the source is bind-mounted).
         info "Installing backend dependencies"
         run "${DC[@]}" up -d --wait php
@@ -330,7 +330,7 @@ start_stack() {
     info "Waiting for health checks"
     wait_for_url "API /health" "http://localhost:${API_PORT}/health" nginx
     wait_for_url "API /ready" "http://localhost:${API_PORT}/ready" nginx
-    if ((! PROD)); then
+    if ((PROD == 0)); then
         wait_for_url "SPA" "http://localhost:${WEB_PORT}/" web
     fi
 }
