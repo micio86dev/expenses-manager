@@ -16,6 +16,9 @@ services:
       APP_ENV: local
       DB_CONNECTION: sqlite
       DB_DATABASE: /var/www/html/database/sqlite/database.sqlite
+      # The API rate limiter writes a counter on every request; the database cache store
+      # hits "database is locked" under parallel SPA requests on SQLite.
+      CACHE_STORE: file
     healthcheck:
       test: ["CMD", "pgrep", "php-fpm"]
       interval: 10s

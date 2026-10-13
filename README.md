@@ -13,7 +13,8 @@ Rules for people and agents working on the code are in [`AGENTS.md`](AGENTS.md).
 
 - [Features](#features) · [Architecture](#architecture) · [Tech stack](#tech-stack)
 - [Repository layout and submodules](#repository-layout-and-submodules) · [Prerequisites](#prerequisites)
-- [Quick start](#quick-start) · [Manual Docker guide](#manual-docker-guide) · [Reference](#makefile-and-script-reference)
+- [Quick start](#quick-start) · [Rebuild from the prompts](#rebuild-the-project-from-the-prompts)
+- [Manual Docker guide](#manual-docker-guide) · [Reference](#makefile-and-script-reference)
 - [Seeding](#seeding) · [Tests and quality gates](#tests-and-quality-gates) · [OpenAPI workflow](#openapi-workflow)
 - [i18n](#internationalization) · [Performance](#performance-notes) · [Git Flow and releases](#git-flow-and-releases)
 - [Engram and Guardian Angel](#engram-and-guardian-angel) · [Troubleshooting](#troubleshooting) · [Conventions](#conventions)
@@ -108,18 +109,18 @@ Versions come from `backend/composer.lock`, `frontend/pnpm-lock.yaml` and the Do
 Fetch and update the submodules:
 
 ```bash
-git clone --recurse-submodules <url> expenses_manager     # fresh clone
+git clone --recurse-submodules https://github.com/micio86dev/expenses-manager.git expenses_manager  # fresh clone
 git submodule update --init --recursive                    # already cloned without them
 git submodule update --remote --merge                      # move them to the tip of their tracked branch
 ```
 
-The submodule URLs in `.gitmodules` are relative (`./backend`, `./frontend`) because the project has
-no remote yet. When a remote exists, point each one at it, then commit:
+The three repositories are public on GitHub: this one, plus `expenses-manager-backend` and
+`expenses-manager-frontend`, which `.gitmodules` points at. To work from a fork, point each submodule
+at your fork and commit the change in the superproject:
 
 ```bash
-git submodule set-url backend <backend-remote-url>
-git submodule set-url frontend <frontend-remote-url>
-git remote add origin <superproject-remote-url>
+git submodule set-url backend https://github.com/<you>/expenses-manager-backend.git
+git submodule set-url frontend https://github.com/<you>/expenses-manager-frontend.git
 ```
 
 ## Prerequisites
@@ -132,8 +133,8 @@ git remote add origin <superproject-remote-url>
 ## Quick start
 
 ```bash
-git clone --recurse-submodules <url> expenses_manager
-cd expenses_manager
+git clone --recurse-submodules https://github.com/micio86dev/expenses-manager.git
+cd expenses-manager
 ./start.sh --demo
 ```
 
@@ -162,6 +163,19 @@ Ports are configurable. If 8000 or 5173 is taken, pick others:
 ```bash
 API_PORT=8100 WEB_PORT=5174 ./start.sh --demo
 ```
+
+### Rebuild the project from the prompts
+
+The two briefs in the root are the prompts that built this project, in English:
+
+- `BRIEF.md`: the original build, from the plan through the eight phases to the `0.1.0` release.
+- `REFACTOR_BRIEF.md`: the later refactor of the docs and launch tooling.
+
+To rebuild it yourself, open the repository in an AI coding agent such as Claude Code, run the
+Engram import (`engram sync --import`, see [Engram and Guardian Angel](#engram-and-guardian-angel)),
+so the agent recovers the recorded decisions, then give it `BRIEF.md` as the task. The briefs ask
+for a plan first, so review it before approving. `docs/PLAN.md` is the progress record the agent
+keeps; resume from its first unchecked box.
 
 ## Manual Docker guide
 
@@ -348,8 +362,9 @@ scripts/release.sh patch                           # or minor | major
 `scripts/release.sh` releases `backend`, then `frontend`, then the root: it refuses dirty trees,
 computes the next `vX.Y.Z` from the last tag, updates `VERSION` and `CHANGELOG.md`, merges into
 `main` with an annotated tag, back-merges into `develop`, and finally the root records the released
-submodule commits. After a hotfix merge, tag it with `scripts/release.sh patch`. There are no
-remotes: nothing is pushed.
+submodule commits. After a hotfix merge, tag it with `scripts/release.sh patch`. Push the branches
+and tags of each repository to its GitHub remote (`git push origin main develop --tags`) when you
+publish a release; `release.sh` itself never pushes.
 
 ## Engram and Guardian Angel
 
@@ -390,4 +405,4 @@ installed. Review a whole branch with `make review`. Install both tools with
 - **Strict typing**: `declare(strict_types=1)` and Larastan level max in PHP; TypeScript strict and vue-tsc in the SPA.
 - **Layers**: thin controllers, logic in Actions and Services, no raw SQL, owner isolation through the global scope.
 - **Definition of done**: tests pass, coverage at least 90% on the touched repository, Pint, Larastan, ESLint, Prettier and vue-tsc clean, contract in sync, docs updated, no dead code, clean tree before merge.
-- Never add remotes, skip a hook (`--no-verify`) or lower a threshold.
+- Only the three public GitHub repositories named above are remotes. Never skip a hook (`--no-verify`) or lower a threshold.

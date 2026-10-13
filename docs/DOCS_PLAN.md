@@ -4,12 +4,12 @@ Source: `REFACTOR_BRIEF.md`. Resume from the first unchecked box after a context
 Branch per repo: `feature/docs-launch-tooling` (root, backend, frontend). Merge `--no-ff` into `develop`; root pins submodules last. No release.
 
 ## Phase 1: Tooling (Engram and Guardian Angel)
-- [x] Engram: `.engram/config.json` with `project_name: expenses_manager` in root, backend, frontend. (root done)
+- [x] Engram: `.engram/config.json` with `project_name: expenses_manager` in root, backend, frontend. (verified in all three repositories)
 - [x] Engram: save architecture, conventions, commands, ports, gotchas (no secrets) via `mem_save`; `engram sync` from root; commit `.engram/`; document sync and import in README.
-- [x] GGA: `gga init` per repo; `.gga` with `PROVIDER=claude`, `RULES_FILE=AGENTS.md`, `STRICT_MODE=true`, `PR_BASE_BRANCH=develop`, file patterns and exclusions (generated and vendored files only). (root done)
-- [x] GGA: `gga run` as the LAST step of each `.githooks/pre-commit`, skipped with a clear message when `gga` is missing. No `gga install`. (root done)
-- [x] AGENTS.md per repo: concise, checkable "Review rules" section. (root done)
-- [x] Make targets `review` (`gga run --pr-mode`), `memory-sync`; dormant CI job `gga run --ci`. (root done, dormant CI job added to root.yml)
+- [x] GGA: `gga init` per repo; `.gga` with `PROVIDER=claude`, `RULES_FILE=AGENTS.md`, `STRICT_MODE=true`, `PR_BASE_BRANCH=develop`, file patterns and exclusions (generated and vendored files only). (verified in all three repositories)
+- [x] GGA: `gga run` as the LAST step of each `.githooks/pre-commit`, skipped with a clear message when `gga` is missing. No `gga install`. (verified in all three repositories)
+- [x] AGENTS.md per repo: concise, checkable "Review rules" section. (verified in all three repositories)
+- [x] Make targets `review` (`gga run --pr-mode`), `memory-sync`; dormant CI job `gga run --ci`. (verified in all three repositories; dormant CI job in root.yml)
 
 ## Phase 2: Launch script and checks
 - [x] `start.sh` at root: bash, `set -euo pipefail`, idempotent, `--help`, `--dry-run`, `--prod`, `--demo`, `--rebuild`, `--down`, `--reset` (confirmation), `--logs`, `--test`.
@@ -20,7 +20,7 @@ Branch per repo: `feature/docs-launch-tooling` (root, backend, frontend). Merge 
 
 ## Phase 3: Documentation
 - [x] Root README (English, complete): overview, Mermaid architecture, stack and versions, repo layout and submodules, prerequisites, quick start, manual Docker guide, make and script reference, seeding, tests and coverage, OpenAPI workflow, i18n, performance, Git Flow and release, Engram and GGA, troubleshooting, conventions.
-- [ ] Component READMEs (backend, frontend) link to root and document their own commands.
+- [x] Component READMEs (backend, frontend) link to root and document their own commands. (Checked: every `make` target they name exists in their Makefile, except `make contract` and `make up`, which the text marks as superproject commands.)
 - [x] Root AGENTS.md: stop saying the root README is Italian.
 
 ## Phase 4: Verify like a new user

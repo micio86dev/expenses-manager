@@ -1,9 +1,12 @@
-# Dormant until a remote exists: runs on demand only.
-# To enable it, add push and pull_request triggers for main and develop under `on:`.
+# Runs on every push and pull request to main and develop, and on demand (workflow_dispatch).
 name: root
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
 
 permissions:
   contents: read
@@ -50,20 +53,26 @@ jobs:
       - name: README references exist
         run: scripts/check-readme.sh
 
-  # Guardian Angel review of the last commit. Dormant like the rest of this workflow.
+  # Guardian Angel review of the last commit. Skipped, with a notice, until ANTHROPIC_API_KEY is set.
   gga:
     name: Guardian Angel review
     runs-on: ubuntu-latest
+    env:
+      ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
     steps:
       - uses: actions/checkout@v7
         with:
           fetch-depth: 2
+      - name: Skip without an API key
+        if: env.ANTHROPIC_API_KEY == ''
+        run: echo "::notice::ANTHROPIC_API_KEY is not set, so the Guardian Angel review is skipped."
       - name: Install Guardian Angel and the Claude Code CLI (the configured provider)
+        if: env.ANTHROPIC_API_KEY != ''
         run: |
           npm install -g @anthropic-ai/claude-code@2.1.296
           git clone https://github.com/Gentleman-Programming/gentleman-guardian-angel.git "$RUNNER_TEMP/gga"
           git -C "$RUNNER_TEMP/gga" checkout --quiet fbf1091da170a33d42cb97577a9813e652e98a4a
           echo "$RUNNER_TEMP/gga/bin" >> "$GITHUB_PATH"
-      - run: gga run --ci
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+      - name: Review the last commit
+        if: env.ANTHROPIC_API_KEY != ''
+        run: gga run --ci
