@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.2.1] - 2026-10-13
+
+- ci(root): pin shfmt to the version the scripts are formatted with
+- fix(launch): use a shfmt-stable form for the dry-run check
+- chore(submodules): pin backend after the composer audit fix
+- fix(launch): use a shfmt-stable form for the production check
+- docs: record the accepted Engram chunk exception in AGENTS.md and the clean-clone re-check
+- chore(submodules): pin frontend after the e2e mock fix; record the verification status
+- docs(readme): keep one busy-port note in the quick start
+- docs(readme): name the busy-port fix next to the quick start
+
 ## [0.2.0] - 2026-10-13
 
 - docs: publish the repositories, enable CI on push and document the rebuild
