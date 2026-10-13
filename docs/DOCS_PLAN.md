@@ -50,6 +50,8 @@ Branch per repo used for this work: `feature/docs-launch-tooling` (root, backend
 
 ## Release
 - `v0.2.0` released with `scripts/release.sh minor` in all three repositories, then `v0.2.1` with `scripts/release.sh patch`, which brings the CI fixes (pinned shfmt, `composer audit --locked`, the busy-port note, the E2E mock fix) to `main`. Both are pushed to GitHub with branches and tags. CI on `main` is green for root, backend and frontend at `v0.2.1`.
+- `v0.2.2` (`scripts/release.sh patch`, 2026-10-13) brings the register-view preload and the demo credentials documentation to `main`. Pushed with tags; CI green on `main` for root, backend and frontend.
+- `v0.2.3` (`scripts/release.sh patch`, 2026-10-13) brings the zod validation of expenses and categories, the runSchema and FieldNotes hardening, the launcher fix that re-points localhost URLs and CORS on re-run, the `.atl/` untracking, and this plan's Phase 7. Pushed with tags; CI on `main` green for backend and frontend at `v0.2.3`, root run completed successfully.
 
 ## Progress log
 - Root writer (2026-10-12): phase 1 root tooling, phase 2 start.sh, phase 3 check-readme, README and AGENTS.md written; shellcheck, shfmt, check-readme and contract-check green. Gaps: no API docs UI in backend; prod compose has no web service; commits blocked by the .git/hooks/pre-commit gga hook (see report).
