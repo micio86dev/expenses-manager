@@ -141,7 +141,9 @@ cd expenses-manager
 The script checks Docker and the ports, creates the `.env` files (generating `APP_KEY`), builds
 and starts the stack, installs the backend dependencies, migrates, seeds, waits for
 `/health`, `/ready` and the SPA, then prints the URLs. With `--demo` it also prints the demo login
-(`demo@example.com` / `demo-password`). It never overwrites an existing `.env` value.
+(`demo@example.com` / `demo-password`). It never overwrites an existing `.env` value. The demo
+account is defined in the backend seeder, [`DemoSeeder.php`](backend/database/seeders/Demo/DemoSeeder.php)
+(`EMAIL` and `PASSWORD`); the launcher prints the same pair, so change both if you change it.
 
 Ports 8000 (API) and 5173 (SPA) are often taken by other projects. If the script reports a busy
 port, start it on free ones instead; the URLs it prints then use those ports:
@@ -288,7 +290,7 @@ environment variable that does not exist).
 
 `php artisan db:seed` always runs the **Reference** seeders (system categories; idempotent, safe in
 production) and runs the **Demo** seeder only when `APP_ENV=local`. Demo data is one user,
-`demo@example.com` / `demo-password`, with custom categories and 72 expenses over six months.
+`demo@example.com` / `demo-password` (defined in [`DemoSeeder.php`](backend/database/seeders/Demo/DemoSeeder.php)), with custom categories and 72 expenses over six months.
 `start.sh` runs the seeders by class name instead, so Reference always runs and Demo only with
 `--demo`:
 
