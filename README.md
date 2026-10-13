@@ -143,6 +143,13 @@ and starts the stack, installs the backend dependencies, migrates, seeds, waits 
 `/health`, `/ready` and the SPA, then prints the URLs. With `--demo` it also prints the demo login
 (`demo@example.com` / `demo-password`). It never overwrites an existing `.env` value.
 
+Ports 8000 (API) and 5173 (SPA) are often taken by other projects. If the script reports a busy
+port, start it on free ones instead; the URLs it prints then use those ports:
+
+```bash
+API_PORT=8100 WEB_PORT=5174 ./start.sh --demo
+```
+
 | Flag | Effect |
 | --- | --- |
 | `--demo` | Also run the Demo seeders (development stack only) |
@@ -158,11 +165,7 @@ The API docs UI is not served yet: the backend has no Scalar or Swagger route, s
 prints the location of `contracts/openapi.yaml` instead of a docs link (it only prints one if
 `/docs` answers).
 
-Ports are configurable. If 8000 or 5173 is taken, pick others:
-
-```bash
-API_PORT=8100 WEB_PORT=5174 ./start.sh --demo
-```
+Ports are configurable: see the busy-port note in [Quick start](#quick-start).
 
 ### Rebuild the project from the prompts
 
@@ -370,7 +373,9 @@ publish a release; `release.sh` itself never pushes.
 
 **Engram** keeps project memory for AI agents. `.engram/config.json` names the shared project
 `expenses_manager` in all three repositories, so root, backend and frontend sessions share one
-memory. Memories are exported as compressed chunks into `.engram/` and committed:
+memory. Memories are exported as compressed chunks into `.engram/` and committed. The chunks
+record the author's chat messages as they were written, Italian included: they are data, not project
+files, so the English-only rule does not cover them:
 
 ```bash
 make memory-sync            # engram sync: export new memories to .engram/

@@ -8,6 +8,8 @@ Personal expense tracker with an admin panel. Superproject with two submodules:
 
 - Everything written to disk is English: code, comments, docs, commit messages, branch names,
   test names, OpenAPI. The only Italian allowed is the `it` translation resource files.
+  Accepted exception: the Engram chunks in `.engram/` keep the author's chat messages as recorded,
+  Italian included. They are exported memory data, and the published history is not rewritten.
 
 ## Workflow
 
@@ -82,7 +84,7 @@ these rules. Each one is checkable on the diff.
 3. Business logic lives in Actions or Services, never in controllers, models or Vue components.
 4. No raw SQL, no dialect-specific functions, no JSON-column queries (Eloquent and Query Builder only).
 5. Every domain table has `owner_id` and every query is owner-scoped; no code path bypasses `OwnerScope`.
-6. Everything on disk is English; Italian only in the `it` translation files.
+6. Everything on disk is English; Italian only in the `it` translation files. Exception: the Engram chunks in `.engram/` (recorded chat memory).
 7. UI strings use typed i18n keys present in both `it` and `en`; no hard-coded user-facing text.
 8. Accessibility: semantic elements, labels for every control, keyboard operable, focus managed in dialogs.
 9. No dead or duplicated code, no commented-out code, no unused exports or files.
